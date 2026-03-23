@@ -1,0 +1,29 @@
+@import './base.css';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #ffffff;
+  color: #111;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Playfair Display", serif;
+}
+
+a,
+.blue {
+  text-decoration: none;
+  color: #3B82F6;
+  transition: 0.4s;
+  padding: 3px;
+}
+.blue:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
