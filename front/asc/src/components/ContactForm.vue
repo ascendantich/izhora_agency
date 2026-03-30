@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { ref, onMounted } from 'vue'
 
 // Основное состояние формы
@@ -114,30 +114,181 @@ const submitForm = async () => {
 </template>
 
 <style scoped>
-/* Стили оставляем без изменений, они у тебя отличные */
-.contact { padding: 40px 10%; background: #f9f9f9; position: relative; }
-.contact h2 { font-family: "Playfair Display", serif; font-size: 32px; margin-bottom: 50px; text-align: center; color: #2c3e50; }
-.contact-wrapper { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; align-items: flex-start; }
-.contact-info { flex: 1 1 300px; max-width: 400px; background: #4C6093; color: white; padding: 30px 25px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 16px; }
-.contact-info h3 { font-family: "Playfair Display", serif; font-size: 20px; font-weight: bold; margin-bottom: 6px; }
-.contact-info p { font-size: 14px; line-height: 1.5; }
-form { flex: 1 1 350px; max-width: 500px; display: flex; flex-direction: column; gap: 18px; background: white; padding: 30px 25px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
-input, select { padding: 14px 16px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; transition: border-color 0.3s; }
-input:focus, select:focus { border-color: #3b82f6; outline: none; }
-button { background: #4C6093; color: white; font-weight: bold; padding: 14px; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease; }
-button:hover { background: #5875c3; }
-@media (max-width: 900px) { .contact-wrapper { flex-direction: column; } }
+.contact {
+  padding: clamp(32px, 4vw, 56px) clamp(16px, 7vw, 10%);
+  background: #f9f9f9;
+  position: relative;
+}
+
+.contact h2 {
+  margin: 0 0 clamp(22px, 4vw, 44px);
+  text-align: center;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-size: clamp(1.9rem, 3.4vw, 2.35rem);
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.contact-wrapper {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+  gap: clamp(16px, 2.4vw, 34px);
+  align-items: stretch;
+}
+
+.contact-info {
+  width: 100%;
+  background: #4c6093;
+  color: #fff;
+  padding: clamp(20px, 2.6vw, 30px) clamp(18px, 2.2vw, 25px);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+.contact-info h3 {
+  margin: 0;
+  line-height: 1.2;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+  font-weight: 700;
+}
+
+.contact-info p {
+  margin: 0;
+  line-height: 1.55;
+  font-size: clamp(0.9rem, 1.35vw, 0.98rem);
+}
+
+form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #fff;
+  padding: clamp(20px, 2.6vw, 30px) clamp(18px, 2.2vw, 25px);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  outline: none;
+}
+
+textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+button {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 14px;
+  background: #4c6093;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background: #5875c3;
+}
+
+@media (max-width: 1024px) {
+  .contact-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact {
+    padding-right: 4%;
+    padding-left: 4%;
+  }
+
+  .contact h2 {
+    margin-bottom: 32px;
+  }
+
+  .contact-wrapper {
+    gap: 14px;
+  }
+
+  form {
+    gap: 12px;
+  }
+
+  textarea {
+    min-height: 100px;
+  }
+}
 
 .modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
+
 .modal-content {
-  background: white; padding: 40px; border-radius: 15px; text-align: center; max-width: 350px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  max-width: 350px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
-.icon-check { width: 50px; height: 50px; background: #4C6093; color: white; border-radius: 50%; 
-              display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; }
-.modal-content h3 { margin-bottom: 10px; color: #2c3e50; font-weight: bold; }
-.modal-btn { width: 100%; margin-top: 20px; }
+
+.icon-check {
+  width: 50px;
+  height: 50px;
+  background: #4c6093;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  font-size: 24px;
+}
+
+.modal-content h3 {
+  margin-bottom: 10px;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.modal-btn {
+  width: 100%;
+  margin-top: 20px;
+}
 </style>

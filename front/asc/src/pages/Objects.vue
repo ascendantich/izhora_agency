@@ -169,9 +169,10 @@ const properties = [
 
 .objects-topbar h1 {
   margin: 0 0 10px;
-  font-family: 'Playfair Display', serif;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: 3rem;
-  font-weight: 400;
+  font-weight: 500;
+  line-height: 1.1;
   color: #2c3e50;
 }
 
@@ -211,9 +212,9 @@ const properties = [
 
 .filters-card h2 {
   margin: 0;
-  font-family: 'Playfair Display', serif;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: 2rem;
-  font-weight: 400;
+  font-weight: 500;
   color: #2c3e50;
 }
 
@@ -318,9 +319,9 @@ const properties = [
 
 .card-header h2 {
   margin: 0;
-  font-family: 'Playfair Display', serif;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: 1.85rem;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.08;
   color: #2c3e50;
 }
@@ -397,6 +398,7 @@ const properties = [
 
   .objects-topbar h1 {
     font-size: 2.35rem;
+    line-height: 1.04;
   }
 
   .card-header {

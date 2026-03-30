@@ -32,8 +32,9 @@
 }
 
 .properties h2 {
-  font-family: "Playfair Display", serif;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: 32px;
+  font-weight: 500;
   color: #2c3e50;
   margin-bottom: 32px;
   text-align: center;
@@ -84,8 +85,9 @@
 
 /* Заголовок */
 .card-info h3 {
-  font-family: "Playfair Display", serif;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: 18px;
+  font-weight: 500;
   margin-bottom: 4px;
 }
 
