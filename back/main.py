@@ -1,152 +1,113 @@
+import os
+import random
 import httpx
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, desc
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
-from typing import List, Optional
 
-# --- 1. КОНФИГУРАЦИЯ ---
-# Замени 'ВАШ_ТОКЕН_БОТА' на токен от @BotFather
+# Настройки БД
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:admin@db:5432/adminka")
 TELEGRAM_BOT_TOKEN = "8568937678:AAHdnyYYHlVq8Yndh_dIjh3yx067_PvNwoo"
-# Настройки БД: пользователь postgres, пароль admin, порт 5433 (Docker)
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:admin@localhost:5433/local_dev_db"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# --- 2. МОДЕЛИ ТАБЛИЦ (согласно твоей схеме) ---
-class Worker(Base):
-    __tablename__ = "Сотрудник"
-    Worker_ID = Column(Integer, primary_key=True, index=True)
-    fio = Column("ФИО", String(255))
-    phone = Column("Номер телефона", String(20))
-    tg_id = Column("ID Telegram", String(100))
+# --- МОДЕЛИ SQLALCHEMY (С точным указанием имен колонок из SQL) ---
+class DBObject(Base):
+    __tablename__ = "objects"
+    id = Column("Object_ID", Integer, primary_key=True, index=True)
+    name = Column("name", String)
 
-class Object(Base):
-    __tablename__ = "Объект"
-    Object_ID = Column(Integer, primary_key=True, index=True)
-    name = Column("Название объекта", String(255))
-    district = Column("Район", String(100))
+class DBWorker(Base):
+    __tablename__ = "workers"
+    id = Column("Worker_ID", Integer, primary_key=True, index=True)
+    full_name = Column("full_name", String)
+    tg_id = Column("tg_id", String)
 
-class Client(Base):
-    __tablename__ = "Клиент"
-    Client_ID = Column(Integer, primary_key=True, index=True)
-    fio = Column("ФИО", String(255))
-    phone = Column("Номер телефон", String(20))
-    Worker_ID = Column(Integer, ForeignKey("Сотрудник.Worker_ID"))
-    Object_ID = Column(Integer, ForeignKey("Объект.Object_ID"))
+class DBClient(Base):
+    __tablename__ = "clients"
+    id = Column("Client_ID", Integer, primary_key=True, index=True)
+    full_name = Column("full_name", String)
+    phone = Column("phone", String)
+    worker_id = Column("Worker_ID", Integer, ForeignKey("workers.Worker_ID"))
+    object_id = Column("Object_ID", Integer, ForeignKey("objects.Object_ID"))
 
-# Создание таблиц
-Base.metadata.create_all(bind=engine)
-
-# --- 3. СХЕМЫ ДАННЫХ (Pydantic) ---
-class ObjectResponse(BaseModel):
-    Object_ID: int
-    name: str
-    district: str
-    class Config:
-        from_attributes = True
-
-class ClientCreate(BaseModel):
-    fio: str
-    phone: str
-    object_id: int
-
-# --- 4. ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ---
 app = FastAPI()
 
-# Настройка CORS для связи с фронтендом на Vue
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Функция для получения сессии базы данных
 def get_db():
     db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    try: yield db
+    finally: db.close()
 
-# Функция отправки сообщения в Telegram
-async def send_tg_notification(tg_id: str, text: str):
-    if not tg_id:
-        return
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    async with httpx.AsyncClient() as client:
-        try:
-            await client.post(url, json={
-                "chat_id": tg_id,
-                "text": text,
-                "parse_mode": "HTML"
-            })
-        except Exception as e:
-            print(f"Ошибка при отправке в Telegram: {e}")
+# --- СХЕМЫ PYDANTIC ---
+class LeadCreate(BaseModel):
+    full_name: str
+    phone: str
+    object_id: int
 
-# --- 5. ЭНДПОИНТЫ ---
-
-# Получение списка объектов для выпадающего списка во Vue
-@app.get("/objects", response_model=List[ObjectResponse])
+# --- ЭНДПОИНТЫ ---
+@app.get("/objects")
 def get_objects(db: Session = Depends(get_db)):
-    return db.query(Object).all()
+    # Явно возвращаем структуру, которую ждет фронтенд
+    objs = db.query(DBObject).all()
+    return [{"Object_ID": o.id, "name": o.name} for o in objs]
 
-# Обработка формы и распределение заявки
 @app.post("/submit-form")
-async def create_client(client_in: ClientCreate, db: Session = Depends(get_db)):
-    # Список ID сотрудников, между которыми делим заявки
-    worker_ids = [1, 2, 3] 
-    
-    # А) Логика Round Robin (определяем очередь)
-    last_client = db.query(Client).order_by(desc(Client.Client_ID)).first()
-    
-    if not last_client or last_client.Worker_ID not in worker_ids:
-        next_worker_id = worker_ids[0]
-    else:
-        try:
-            current_index = worker_ids.index(last_client.Worker_ID)
-            next_worker_id = worker_ids[(current_index + 1) % len(worker_ids)]
-        except ValueError:
-            next_worker_id = worker_ids[0]
-
-    # Б) Получаем данные сотрудника и объекта для уведомления
-    worker = db.query(Worker).filter(Worker.Worker_ID == next_worker_id).first()
-    obj = db.query(Object).filter(Object.Object_ID == client_in.object_id).first()
-
-    # В) Сохраняем нового клиента в базу
-    new_client = Client(
-        fio=client_in.fio,
-        phone=client_in.phone,
-        Worker_ID=next_worker_id,
-        Object_ID=client_in.object_id
-    )
-    
+async def create_lead(payload: LeadCreate, db: Session = Depends(get_db)):
     try:
+        # 1. Получаем список сотрудников
+        workers = db.query(DBWorker).all()
+        if not workers: 
+            raise Exception("В таблице workers нет записей!")
+        
+        # 2. Находим данные объекта по его ID, который пришел с фронтенда
+        selected_object = db.query(DBObject).filter(DBObject.id == payload.object_id).first()
+        # Если вдруг объект не найден, подстрахуемся текстом "Неизвестный объект"
+        object_name = selected_object.name if selected_object else "Неизвестный объект"
+        
+        target_worker = random.choice(workers)
+        
+        # 3. Сохраняем клиента в базу
+        new_client = DBClient(
+            full_name=payload.full_name,
+            phone=payload.phone,
+            object_id=payload.object_id,
+            worker_id=target_worker.id
+        )
         db.add(new_client)
         db.commit()
-        db.refresh(new_client)
+
+        # 4. Отправка в Telegram (теперь с Именем объекта)
+        async with httpx.AsyncClient() as client:
+            msg = (
+                f"🚀 **Новая заявка!**\n\n"
+                f"👤 **Клиент:** {payload.full_name}\n"
+                f"📞 **Телефон:** {payload.phone}\n"
+                f"📍 **Объект:** {object_name}"  # <--- Теперь здесь имя, а не ID
+            )
+            
+            await client.post(
+                f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage", 
+                json={
+                    "chat_id": target_worker.tg_id, 
+                    "text": msg,
+                    "parse_mode": "Markdown" # Чтобы жирный шрифт работал
+                }
+            )
+
+        return {"status": "success"}
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Ошибка при записи в базу данных")
-
-    # Г) Отправка уведомления в Telegram назначенному сотруднику
-    if worker and worker.tg_id:
-        msg = (
-            f"<b>🚀 Новая заявка!</b>\n\n"
-            f"👤 <b>Клиент:</b> {client_in.fio}\n"
-            f"📞 <b>Телефон:</b> {client_in.phone}\n"
-            f"🏢 <b>Объект:</b> {obj.name if obj else 'Не указан'}"
-        )
-        await send_tg_notification(worker.tg_id, msg)
-
-    return {
-        "status": "success",
-        "assigned_worker": worker.fio if worker else next_worker_id,
-        "client_id": new_client.Client_ID
-    }
+        print(f"Ошибка: {e}")
+        raise HTTPException(status_code=400, detail=str(e))

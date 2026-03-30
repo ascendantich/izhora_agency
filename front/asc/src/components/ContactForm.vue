@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
+// Основное состояние формы
 const formData = ref({
   name: '',
   phone: '',
@@ -9,14 +10,16 @@ const formData = ref({
 
 const objectsList = ref([])
 const isLoadingObjects = ref(true)
-const showSuccessModal = ref(false) // Только для поп-апа
+const showSuccessModal = ref(false)
 
+// 1. Загружаем список объектов из БД
 const fetchObjects = async () => {
   try {
     isLoadingObjects.value = true
     const response = await fetch('http://127.0.0.1:8000/objects')
     if (response.ok) {
       objectsList.value = await response.json()
+      // Если объекты есть, выбираем первый по умолчанию
       if (objectsList.value.length > 0) {
         formData.value.object_id = objectsList.value[0].Object_ID
       }
@@ -32,29 +35,42 @@ onMounted(() => {
   fetchObjects()
 })
 
+// 2. Отправка формы на бэкенд
 const submitForm = async () => {
+  // Исправлено: берем данные из formData.value
+  const payload = {
+    full_name: formData.value.name, 
+    phone: formData.value.phone,
+    object_id: Number(formData.value.object_id) // Гарантируем число
+  };
+
+  console.log("Отправляем на сервер:", payload);
+
   try {
     const response = await fetch('http://127.0.0.1:8000/submit-form', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fio: formData.value.name,
-        phone: formData.value.phone,
-        object_id: formData.value.object_id 
-      })
-    })
+      body: JSON.stringify(payload)
+    });
+    
+    const result = await response.json();
 
     if (response.ok) {
-      showSuccessModal.value = true // Показываем окно
-      formData.value.name = ''
-      formData.value.phone = ''
+      console.log("Успех:", result);
+      // Показываем поп-ап
+      showSuccessModal.value = true;
+      // Очищаем форму (кроме объекта)
+      formData.value.name = '';
+      formData.value.phone = '';
     } else {
-      alert('Ошибка при отправке')
+      console.error("Ошибка сервера:", result.detail);
+      alert("Ошибка при отправке: " + (result.detail || "неизвестная ошибка"));
     }
   } catch (error) {
-    alert('Сервер не отвечает')
+    console.error("Критическая ошибка:", error);
+    alert("Не удалось связаться с сервером. Проверь, запущен ли Docker.");
   }
-}
+};
 </script>
 
 <template>
@@ -98,7 +114,7 @@ const submitForm = async () => {
 </template>
 
 <style scoped>
-/* ТВОИ ОРИГИНАЛЬНЫЕ СТИЛИ (без изменений) */
+/* Стили оставляем без изменений, они у тебя отличные */
 .contact { padding: 40px 10%; background: #f9f9f9; position: relative; }
 .contact h2 { font-family: "Playfair Display", serif; font-size: 32px; margin-bottom: 50px; text-align: center; color: #2c3e50; }
 .contact-wrapper { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; align-items: flex-start; }
@@ -112,7 +128,6 @@ button { background: #4C6093; color: white; font-weight: bold; padding: 14px; bo
 button:hover { background: #5875c3; }
 @media (max-width: 900px) { .contact-wrapper { flex-direction: column; } }
 
-/* СТИЛИ ТОЛЬКО ДЛЯ ПОП-АПА */
 .modal-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 9999;

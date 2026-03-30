@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db_container
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=adminka
+    volumes:
+      - ./db/backup.sql:/docker-entrypoint-initdb.d/backup.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d adminka"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: 
+      context: ./back  # Проверьте, что папка называется именно так
+    container_name: fastapi_backend_container
+    environment:
+      - DATABASE_URL=postgresql://postgres:admin@db:5432/adminka
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
