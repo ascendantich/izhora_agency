@@ -176,9 +176,9 @@ const handlePlansClick = (event: MouseEvent) => {
 
 .title-row h1 {
   margin: 0 0 10px;
-  font-family: 'Playfair Display', serif;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: 3rem;
-  font-weight: 400;
+  font-weight: 500;
   color: #2c3e50;
 }
 
@@ -235,9 +235,9 @@ const handlePlansClick = (event: MouseEvent) => {
 
 .text-block h2 {
   margin: 0;
-  font-family: 'Playfair Display', serif;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: 2.1rem;
-  font-weight: 400;
+  font-weight: 500;
   color: #2c3e50;
 }
 
@@ -262,9 +262,9 @@ const handlePlansClick = (event: MouseEvent) => {
 
 .advantage-card h3 {
   margin: 0 0 10px;
-  font-family: 'Playfair Display', serif;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: 1.5rem;
-  font-weight: 400;
+  font-weight: 500;
   color: #2c3e50;
 }
 
@@ -360,9 +360,10 @@ const handlePlansClick = (event: MouseEvent) => {
 .plans-section :deep(.properties h2)::after {
   content: 'Доступные планировки';
   display: block;
-  font-family: 'Playfair Display', serif;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: 2.25rem;
-  font-weight: 400;
+  font-weight: 500;
+  line-height: 1.1;
   color: #2c3e50;
 }
 
@@ -434,6 +435,11 @@ const handlePlansClick = (event: MouseEvent) => {
 
   .title-row h1 {
     font-size: 2.3rem;
+  }
+
+  .plans-section :deep(.properties h2)::after {
+    font-size: 2rem;
+    line-height: 1.06;
   }
 
   .facts-grid,

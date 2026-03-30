@@ -39,9 +39,8 @@
 .hero{
   height:80vh;
   background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.2), rgba(51, 51, 51, 0.1)),
+    linear-gradient(rgba(8, 20, 33, 0.42), rgba(8, 20, 33, 0.24)),
     url('../assets/hero.png');
-  background-size: cover;
   background-size:cover;
   background-position:center 40%;
   display:flex;
@@ -51,21 +50,23 @@
 
 .hero-content{
   text-align:center;
-  max-width:800px;
+  max-width:980px;
 }
 
 .hero h1{
-  font-size:48px;
-  font-weight: bold;
+  font-size: clamp(2.2rem, 3.6vw, 3.6rem);
+  font-weight: 700;
   color:white;
-  margin-bottom:12px;
-  line-height: 1.2;
+  margin: 0 0 16px;
+  line-height: 1.04;
 }
 
 .hero p{
-  font-size:18px;
-  color:white;
-  margin-bottom:30px;
+  max-width: 920px;
+  margin: 0 auto 30px;
+  font-size: 1.24rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.86);
 }
 
 .search-box{
