@@ -55,10 +55,10 @@
 import Header from '@/components/Header.vue'
 import ContactForm from '@/components/ContactForm.vue'
 import Footer from '@/components/Footer.vue'
-import annaPhoto from '@/assets/anna.png'
-import dmitryPhoto from '@/assets/dmitry.png'
-import elenaPhoto from '@/assets/elena.png'
-import petrPhoto from '@/assets/petr.png'
+import annaPhoto from '@/assets/max.jpg'
+import dmitryPhoto from '@/assets/kan.jpg'
+import elenaPhoto from '@/assets/ai.jpg'
+import petrPhoto from '@/assets/leo.jpg'
 import cupIcon from '@/assets/icons/cup.svg'
 import graphIcon from '@/assets/icons/graph.svg'
 import handshakeIcon from '@/assets/icons/handshake.svg'
@@ -74,31 +74,31 @@ const metrics = [
 
 const teamMembers = [
   {
-    name: 'Анна Иванова',
+    name: 'Пархоменко Максим',
     position: 'Генеральный директор',
     experience: 15,
-    phone: '+7 (999) 123-45-67',
+    phone: '+7 (988) 988-66-52',
     photo: annaPhoto,
   },
   {
-    name: 'Петр Смирнов',
+    name: 'Кузнецов Леонид',
     position: 'Руководитель отдела продаж',
     experience: 10,
-    phone: '+7 (999) 234-56-78',
+    phone: '+7 (920) 666-68-91',
     photo: petrPhoto,
   },
   {
-    name: 'Елена Козлова',
+    name: 'Капитонов Айдын',
     position: 'Ведущий риэлтор',
     experience: 12,
-    phone: '+7 (999) 345-67-89',
+    phone: '+7 (984) 116-24-04',
     photo: elenaPhoto,
   },
   {
-    name: 'Дмитрий Новиков',
+    name: 'Кан Константин',
     position: 'Риэлтор по коммерции',
     experience: 8,
-    phone: '+7 (999) 456-78-90',
+    phone: '+7 (924) 879-55-22',
     photo: dmitryPhoto,
   },
 ]

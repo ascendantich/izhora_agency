@@ -18,7 +18,7 @@ services:
 
   backend:
     build: 
-      context: ./back  # Проверьте, что папка называется именно так
+      context: ./back
     container_name: fastapi_backend_container
     environment:
       - DATABASE_URL=postgresql://postgres:admin@db:5432/adminka
@@ -27,3 +27,4 @@ services:
     depends_on:
       db:
         condition: service_healthy
+

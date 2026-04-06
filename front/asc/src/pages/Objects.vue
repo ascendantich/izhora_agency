@@ -18,7 +18,7 @@
 
           <label class="filter-field">
             <span>Тип объекта</span>
-            <select>
+            <select v-model="filters.type">
               <option>Все объекты</option>
               <option>Квартиры</option>
               <option>Дома</option>
@@ -28,7 +28,7 @@
 
           <label class="filter-field">
             <span>Бюджет</span>
-            <select>
+            <select v-model="filters.budget">
               <option>Любой</option>
               <option>До 10 млн ₽</option>
               <option>10–20 млн ₽</option>
@@ -38,7 +38,7 @@
 
           <label class="filter-field">
             <span>Комнат</span>
-            <select>
+            <select v-model="filters.rooms">
               <option>Любое количество</option>
               <option>1 комната</option>
               <option>2 комнаты</option>
@@ -48,10 +48,15 @@
 
           <label class="filter-field">
             <span>Локация</span>
-            <input type="text" placeholder="Москва, район, метро" />
+            <input 
+              type="text" 
+              v-model="filters.location" 
+              placeholder="Москва, район, метро" 
+            />
           </label>
-
-          <button type="button" class="filter-button">Показать варианты</button>
+     
+          <button @click="fetchProperties" class="filter-button" >Показать варианты</button>
+          
         </aside>
 
         <div class="cards-column">
@@ -79,7 +84,7 @@
               <p class="metro">{{ property.metro }}</p>
 
               <div class="card-footer">
-                <span>{{ property.developer }}</span>
+                <span>{{ property.rooms }}</span>
                 <span>{{ property.status }}</span>
               </div>
             </div>
@@ -87,66 +92,86 @@
         </div>
       </div>
     </section>
-
+    <ContactForm />
     <Footer />
-  </div>
+    </div>
 </template>
 
 <script setup lang="ts">
-import Header from '@/components/Header.vue'
-import Footer from '@/components/Footer.vue'
-import houseImage from '@/assets/house.png'
+import { ref, onMounted } from 'vue'
+import Header from "../components/Header.vue"
+import Footer from "../components/Footer.vue"
+import ContactForm from "../components/ContactForm.vue"
 
-const properties = [
-  {
-    id: 1,
-    image: houseImage,
-    badge: 'Проверено',
-    price: '15 000 000 ₽',
-    title: '3-комнатная квартира в центре',
-    area: '40,3 м²',
-    address: 'Москва, ул. Тверская, д. 12, кв. 34',
-    metro: 'Маяковская • 7 минут пешком',
-    developer: 'ИЖОРА Premium',
-    status: 'Свободна',
-  },
-  {
-    id: 2,
-    image: houseImage,
-    badge: 'Новый объект',
-    price: '18 700 000 ₽',
-    title: 'Квартира с панорамными окнами',
-    area: '58,6 м²',
-    address: 'Москва, Ленинградский проспект, д. 24',
-    metro: 'Белорусская • 10 минут',
-    developer: 'City Residence',
-    status: 'Показ сегодня',
-  },
-  {
-    id: 3,
-    image: houseImage,
-    badge: 'Без комиссии',
-    price: '27 500 000 ₽',
-    title: 'Апартаменты для инвестиций',
-    area: '72,1 м²',
-    address: 'Москва, Пресненская наб., д. 8',
-    metro: 'Деловой центр • 4 минуты',
-    developer: 'Capital Group',
-    status: 'Онлайн-тур',
-  },
-  {
-    id: 4,
-    image: houseImage,
-    badge: 'С отделкой',
-    price: '11 900 000 ₽',
-    title: 'Семейная квартира в новом ЖК',
-    area: '46,8 м²',
-    address: 'Москва, Варшавское ш., д. 114',
-    metro: 'Южная • 12 минут',
-    developer: 'Green District',
-    status: 'Ключи в 2026',
-  },
-]
+// Полный интерфейс объекта недвижимости (соответствует твоему шаблону)
+interface Property {
+  id: number;
+  title: string;
+  price: string;
+  image: string;
+  location: string;
+  address: string;
+  area: string;
+  status: string;
+  badge?: string; // Добавлено
+  metro?: string; // Добавлено
+  rooms: string;  // Добавлено
+}
+
+// Типизируем фильтры
+interface Filters {
+  type: string;
+  budget: string;
+  rooms: string;
+  location: string;
+}
+
+const properties = ref<Property[]>([])
+
+const filters = ref<Filters>({
+  type: 'Все объекты',
+  budget: 'Любой',
+  rooms: 'Любое количество',
+  location: ''
+})
+
+const fetchProperties = async (): Promise<void> => {
+  try {
+    const params = new URLSearchParams({
+      type: filters.value.type,
+      budget: filters.value.budget,
+      rooms: filters.value.rooms,
+      location: filters.value.location
+    })
+
+    const response = await fetch(`http://localhost:8000/properties?${params.toString()}`)
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const data: Property[] = await response.json()
+    properties.value = data
+  } catch (error) {
+    console.error("Ошибка при загрузке данных:", error)
+  }
+}
+
+onMounted(() => {
+  // Читаем параметры из URL (window.location.search) для работы поиска с главной страницы
+  const urlParams = new URLSearchParams(window.location.search);
+  const locationFromUrl = urlParams.get('location');
+  const typeFromUrl = urlParams.get('type');
+
+  if (locationFromUrl) {
+    filters.value.location = locationFromUrl;
+  }
+  if (typeFromUrl) {
+    filters.value.type = typeFromUrl;
+  }
+
+  fetchProperties()
+})
 </script>
 
 <style scoped>
@@ -272,15 +297,22 @@ const properties = [
 
 .card-media {
   position: relative;
-  min-height: 240px;
-  background: #474747;
+  /* Задаем фиксированные размеры контейнера */
+  width: 320px;
+  height: 240px;
+  background: #f0f0f0; /* Цвет фона, если картинка не загрузится */
+  overflow: hidden; /* Скрывает все, что не помещается */
 }
 
 .card-media img {
   display: block;
+  /* Заставляет картинку занимать всю площадь контейнера, 
+     независимо от ее реальных размеров */
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* Самое важное: сохраняет пропорции, 
+     лишнее обрезается (как в CSS background-size: cover) */
+  object-fit: cover; 
 }
 
 .card-badge {

@@ -16,12 +16,17 @@ const showSuccessModal = ref(false)
 const fetchObjects = async () => {
   try {
     isLoadingObjects.value = true
-    const response = await fetch('http://127.0.0.1:8000/objects')
+    // Важно: используем адрес из докера или localhost
+    const response = await fetch('http://localhost:8000/objects') 
+    
     if (response.ok) {
-      objectsList.value = await response.json()
-      // Если объекты есть, выбираем первый по умолчанию
-      if (objectsList.value.length > 0) {
-        formData.value.object_id = objectsList.value[0].Object_ID
+      const data = await response.json()
+      objectsList.value = data
+      
+      // Исправлено: проверяем наличие данных и используем правильный ключ 'id'
+      if (data.length > 0) {
+        // Пробуем взять id или Object_ID (смотря что пришло с бэка)
+        formData.value.object_id = data[0].id || data[0].Object_ID
       }
     }
   } catch (error) {
@@ -80,7 +85,7 @@ const submitForm = async () => {
     <div class="contact-wrapper">
       <div class="contact-info">
         <h3>Позвоните нам</h3>
-        <p class="phone">+7 (999) 123-45-67</p>
+        <p class="phone">+7 (920) 666-68-91</p>
         <h3>Расположение</h3>
         <p class="address">Москва, ул. Тверская, д. 12, офис 34</p>
         <h3>Рабочие часы</h3>
@@ -93,7 +98,7 @@ const submitForm = async () => {
 
         <select v-model="formData.object_id" required :disabled="isLoadingObjects">
           <option v-if="isLoadingObjects" disabled value="">Загрузка...</option>
-          <option v-for="obj in objectsList" :key="obj.Object_ID" :value="obj.Object_ID">
+          <option v-for="obj in objectsList" :key="obj.id" :value="obj.id">
             {{ obj.name }}
           </option>
         </select>
