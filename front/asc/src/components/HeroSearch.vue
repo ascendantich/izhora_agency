@@ -51,33 +51,33 @@ const handleSearch = () => {
 .hero {
   height: 80vh;
   background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.2), rgba(51, 51, 51, 0.1)),
+    linear-gradient(rgba(8, 20, 33, 0.42), rgba(8, 20, 33, 0.24)),
     url('../assets/hero.png');
   background-size: cover;
-  background-position: center 40%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-size:cover;
+  background-position:center 40%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
-.hero-content {
-  text-align: center;
-  max-width: 800px;
-  width: 90%;
+.hero-content{
+  text-align:center;
+  max-width:800px;
 }
 
-.hero h1 {
-  font-size: 48px;
+.hero h1{
+  font-size:48px;
   font-weight: bold;
-  color: white;
-  margin-bottom: 12px;
+  color:white;
+  margin-bottom:12px;
   line-height: 1.2;
 }
 
-.hero p {
-  font-size: 18px;
-  color: white;
-  margin-bottom: 30px;
+.hero p{
+  font-size:18px;
+  color:white;
+  margin-bottom:30px;
 }
 
 .search-box {
